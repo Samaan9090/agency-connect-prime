@@ -63,36 +63,42 @@ export default function HomePage() {
     {
       title: "Web Development",
       description: "Custom websites and web applications built with cutting-edge technology",
+      technologies: ["React", "Next.js", "Django", "Node.js", "TypeScript"],
       icon: "💻",
       projects: "2,500+ projects"
     },
     {
       title: "Digital Marketing",
       description: "Data-driven marketing strategies to grow your online presence",
+      technologies: ["SEO", "PPC", "Social Media", "Analytics", "Email Marketing"],
       icon: "📈",
       projects: "3,200+ projects"
     },
     {
       title: "Mobile Development",
       description: "Native and cross-platform mobile applications for iOS and Android",
+      technologies: ["React Native", "Flutter", "Swift", "Kotlin", "Ionic"],
       icon: "📱",
       projects: "1,800+ projects"
     },
     {
       title: "Branding & Design",
       description: "Complete brand identity and visual design solutions",
+      technologies: ["UI/UX", "Logo Design", "Figma", "Adobe Creative", "Prototyping"],
       icon: "🎨",
       projects: "4,100+ projects"
     },
     {
       title: "SEO Optimization",
       description: "Search engine optimization to improve your visibility",
+      technologies: ["Technical SEO", "Content SEO", "Link Building", "Analytics", "Local SEO"],
       icon: "🔍",
       projects: "2,900+ projects"
     },
     {
       title: "Content Marketing",
       description: "Strategic content creation and marketing campaigns",
+      technologies: ["Copywriting", "Video Production", "Social Content", "Blogging", "Podcasting"],
       icon: "✍️",
       projects: "2,200+ projects"
     }
@@ -316,7 +322,12 @@ export default function HomePage() {
                     {service.icon}
                   </div>
                   <CardTitle className="text-xl mb-2">{service.title}</CardTitle>
-                  <CardDescription className="text-gray-600">{service.description}</CardDescription>
+                  <CardDescription className="text-gray-600 mb-4">{service.description}</CardDescription>
+                  <div className="flex flex-wrap gap-1 mb-3">
+                    {service.technologies.map((tech, techIndex) => (
+                      <Badge key={techIndex} variant="outline" className="text-xs">{tech}</Badge>
+                    ))}
+                  </div>
                 </CardHeader>
                 <CardContent>
                   <Badge variant="secondary" className="text-sm">{service.projects}</Badge>
