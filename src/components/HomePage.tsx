@@ -222,7 +222,7 @@ export default function HomePage() {
           <div className="bg-white/95 backdrop-blur-sm rounded-2xl p-6 max-w-4xl mx-auto shadow-large animate-scale-in">
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4 items-end">
               <div className="space-y-2">
-                <label className="text-sm font-medium text-gray-700">Services</label>
+                <label className="text-sm font-medium text-gray-700">Category</label>
                 <div className="relative">
                   <select 
                     value={selectedService}
