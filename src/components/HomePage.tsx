@@ -7,6 +7,7 @@ import { Badge } from "@/components/ui/badge";
 import heroBg from "@/assets/hero-bg.jpg";
 import handshakeBg from "@/assets/handshake-bg.jpg";
 import bannerBg from "@/assets/banner-bg.jpg";
+import Navigation from './Navigation';
 
 // Counter animation hook
 const useCounter = (end: number, duration: number = 2000) => {
@@ -208,6 +209,7 @@ export default function HomePage() {
 
   return (
     <div className="min-h-screen bg-background">
+      <Navigation />
       {/* Hero Section */}
       <section 
         className="relative min-h-screen flex items-center justify-center bg-cover bg-center bg-no-repeat"
