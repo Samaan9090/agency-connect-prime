@@ -325,9 +325,14 @@ export default function HomePage() {
                   </div>
                   <CardTitle className="text-xl mb-2">{service.title}</CardTitle>
                   <CardDescription className="text-gray-600 mb-4">{service.description}</CardDescription>
-                  <div className="flex flex-wrap gap-1 mb-3">
+                  
+                  {/* Vertical list of technologies */}
+                  <div className="space-y-2 mb-4">
                     {service.technologies.map((tech, techIndex) => (
-                      <Badge key={techIndex} variant="outline" className="text-xs">{tech}</Badge>
+                      <div key={techIndex} className="flex items-center text-sm text-gray-600 hover:text-primary transition-colors">
+                        <div className="w-2 h-2 bg-accent rounded-full mr-3 flex-shrink-0"></div>
+                        {tech}
+                      </div>
                     ))}
                   </div>
                 </CardHeader>
