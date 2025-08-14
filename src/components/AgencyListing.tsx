@@ -1,9 +1,10 @@
 import { useState } from "react";
-import { Star, MapPin, Users, DollarSign, Eye, ChevronDown, ChevronUp } from "lucide-react";
+import { Star, MapPin, Users, DollarSign, Eye, ChevronDown, ChevronUp, Filter, ArrowUpDown } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
 interface Agency {
   id: number;
@@ -22,6 +23,12 @@ interface Agency {
   specialties: string[];
   established: string;
   verified: boolean;
+  country: string;
+  state: string;
+  city: string;
+  expertise: string[];
+  industries: string[];
+  services: string[];
 }
 
 const mockAgencies: Agency[] = [
@@ -41,7 +48,13 @@ const mockAgencies: Agency[] = [
     portfolioCount: 250,
     specialties: ["Mobile App Development", "React Native", "Flutter", "iOS/Android"],
     established: "2016",
-    verified: true
+    verified: true,
+    country: "USA",
+    state: "New York",
+    city: "New York",
+    expertise: ["Mobile Development", "UI/UX Design"],
+    industries: ["Healthcare", "Fintech", "E-commerce", "Education"],
+    services: ["Web Development", "React", "Next.js", "Flutter", "iOS Development", "Android Development", "UI/UX Design", "Consulting", "Quality Assurance", "DevOps"]
   },
   {
     id: 2,
@@ -59,7 +72,13 @@ const mockAgencies: Agency[] = [
     portfolioCount: 180,
     specialties: ["Web Development", "React", "Node.js", "Cloud Solutions"],
     established: "2018",
-    verified: true
+    verified: true,
+    country: "USA",
+    state: "California",
+    city: "San Francisco",
+    expertise: ["Web Development", "Cloud Architecture"],
+    industries: ["Technology", "SaaS", "Startups"],
+    services: ["Web Development", "React", "Vue.js", "Node.js", "MongoDB", "AWS", "DevOps", "AI Integration"]
   },
   {
     id: 3,
@@ -77,7 +96,13 @@ const mockAgencies: Agency[] = [
     portfolioCount: 320,
     specialties: ["Brand Design", "UI/UX", "Digital Marketing", "Graphic Design"],
     established: "2015",
-    verified: true
+    verified: true,
+    country: "USA",
+    state: "California",
+    city: "Los Angeles",
+    expertise: ["Brand Design", "Digital Marketing"],
+    industries: ["Fashion", "Retail", "Entertainment", "Food & Beverage"],
+    services: ["Web Development", "Brand Design", "UI/UX Design", "Digital Marketing", "Graphic Design", "SEO", "Social Media Marketing"]
   },
   {
     id: 4,
@@ -95,7 +120,13 @@ const mockAgencies: Agency[] = [
     portfolioCount: 95,
     specialties: ["Data Analytics", "Business Intelligence", "Machine Learning", "Consulting"],
     established: "2019",
-    verified: false
+    verified: false,
+    country: "USA",
+    state: "Illinois",
+    city: "Chicago",
+    expertise: ["Data Analytics", "Machine Learning"],
+    industries: ["Finance", "Healthcare", "Retail", "Manufacturing"],
+    services: ["Data Analytics", "Business Intelligence", "Machine Learning", "Python", "R", "Tableau", "Power BI", "Consulting"]
   },
   {
     id: 5,
@@ -113,7 +144,13 @@ const mockAgencies: Agency[] = [
     portfolioCount: 410,
     specialties: ["E-commerce", "Shopify", "WooCommerce", "Payment Integration"],
     established: "2014",
-    verified: true
+    verified: true,
+    country: "USA",
+    state: "Washington",
+    city: "Seattle",
+    expertise: ["E-commerce", "Payment Integration"],
+    industries: ["Retail", "Fashion", "Food & Beverage", "Electronics"],
+    services: ["E-commerce Development", "Shopify", "WooCommerce", "Magento", "Payment Integration", "Inventory Management", "Conversion Optimization"]
   },
   {
     id: 6,
@@ -131,12 +168,25 @@ const mockAgencies: Agency[] = [
     portfolioCount: 160,
     specialties: ["Cloud Computing", "DevOps", "AWS", "Azure"],
     established: "2017",
-    verified: true
+    verified: true,
+    country: "USA",
+    state: "Colorado",
+    city: "Denver",
+    expertise: ["Cloud Computing", "DevOps"],
+    industries: ["Technology", "Finance", "Healthcare"],
+    services: ["Cloud Computing", "DevOps", "AWS", "Azure", "Google Cloud", "Kubernetes", "Docker", "CI/CD"]
   }
 ];
 
 export default function AgencyListing() {
   const [expandedAgencies, setExpandedAgencies] = useState<Set<number>>(new Set());
+  const [expandedServices, setExpandedServices] = useState<Set<number>>(new Set());
+  const [sortBy, setSortBy] = useState<string>("rating");
+  const [filterCountry, setFilterCountry] = useState<string>("all");
+  const [filterState, setFilterState] = useState<string>("all");
+  const [filterCity, setFilterCity] = useState<string>("all");
+  const [filterExpertise, setFilterExpertise] = useState<string>("all");
+  const [filterIndustry, setFilterIndustry] = useState<string>("all");
 
   const toggleExpanded = (agencyId: number) => {
     const newExpanded = new Set(expandedAgencies);
@@ -147,6 +197,51 @@ export default function AgencyListing() {
     }
     setExpandedAgencies(newExpanded);
   };
+
+  const toggleServicesExpanded = (agencyId: number) => {
+    const newExpanded = new Set(expandedServices);
+    if (newExpanded.has(agencyId)) {
+      newExpanded.delete(agencyId);
+    } else {
+      newExpanded.add(agencyId);
+    }
+    setExpandedServices(newExpanded);
+  };
+
+  // Get unique values for filters
+  const countries = [...new Set(mockAgencies.map(agency => agency.country))];
+  const states = [...new Set(mockAgencies.map(agency => agency.state))];
+  const cities = [...new Set(mockAgencies.map(agency => agency.city))];
+  const expertises = [...new Set(mockAgencies.flatMap(agency => agency.expertise))];
+  const industries = [...new Set(mockAgencies.flatMap(agency => agency.industries))];
+
+  // Filter and sort agencies
+  const filteredAndSortedAgencies = mockAgencies
+    .filter(agency => {
+      return (filterCountry === "all" || agency.country === filterCountry) &&
+             (filterState === "all" || agency.state === filterState) &&
+             (filterCity === "all" || agency.city === filterCity) &&
+             (filterExpertise === "all" || agency.expertise.includes(filterExpertise)) &&
+             (filterIndustry === "all" || agency.industries.includes(filterIndustry));
+    })
+    .sort((a, b) => {
+      switch (sortBy) {
+        case "rating":
+          return b.rating - a.rating;
+        case "reviews":
+          return b.totalReviews - a.totalReviews;
+        case "budget":
+          const aMin = parseInt(a.budgetPerHour.split('-')[0].replace(/\D/g, ''));
+          const bMin = parseInt(b.budgetPerHour.split('-')[0].replace(/\D/g, ''));
+          return aMin - bMin;
+        case "portfolio":
+          return b.portfolioCount - a.portfolioCount;
+        case "established":
+          return parseInt(a.established) - parseInt(b.established);
+        default:
+          return 0;
+      }
+    });
 
   const renderStars = (rating: number) => {
     return Array.from({ length: 5 }, (_, index) => (
@@ -179,13 +274,125 @@ export default function AgencyListing() {
               <div className="w-3 h-3 bg-green-500 rounded-full"></div>
               Verified Agencies
             </span>
-            <span>{mockAgencies.length} Companies Found</span>
+            <span>{filteredAndSortedAgencies.length} Companies Found</span>
+          </div>
+        </div>
+
+        {/* Filters and Sorting */}
+        <div className="bg-card border rounded-lg p-6 mb-8">
+          <div className="flex items-center gap-4 mb-6">
+            <Filter className="w-5 h-5 text-gray-500" />
+            <h3 className="font-semibold text-lg">Filter & Sort Agencies</h3>
+          </div>
+          
+          <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-6 gap-4">
+            {/* Country Filter */}
+            <div>
+              <label className="block text-sm font-medium mb-2">Country</label>
+              <Select value={filterCountry} onValueChange={setFilterCountry}>
+                <SelectTrigger>
+                  <SelectValue placeholder="All Countries" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">All Countries</SelectItem>
+                  {countries.map(country => (
+                    <SelectItem key={country} value={country}>{country}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+
+            {/* State Filter */}
+            <div>
+              <label className="block text-sm font-medium mb-2">State</label>
+              <Select value={filterState} onValueChange={setFilterState}>
+                <SelectTrigger>
+                  <SelectValue placeholder="All States" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">All States</SelectItem>
+                  {states.map(state => (
+                    <SelectItem key={state} value={state}>{state}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+
+            {/* City Filter */}
+            <div>
+              <label className="block text-sm font-medium mb-2">City</label>
+              <Select value={filterCity} onValueChange={setFilterCity}>
+                <SelectTrigger>
+                  <SelectValue placeholder="All Cities" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">All Cities</SelectItem>
+                  {cities.map(city => (
+                    <SelectItem key={city} value={city}>{city}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+
+            {/* Expertise Filter */}
+            <div>
+              <label className="block text-sm font-medium mb-2">Expertise</label>
+              <Select value={filterExpertise} onValueChange={setFilterExpertise}>
+                <SelectTrigger>
+                  <SelectValue placeholder="All Expertise" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">All Expertise</SelectItem>
+                  {expertises.map(expertise => (
+                    <SelectItem key={expertise} value={expertise}>{expertise}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+
+            {/* Industry Filter */}
+            <div>
+              <label className="block text-sm font-medium mb-2">Industry</label>
+              <Select value={filterIndustry} onValueChange={setFilterIndustry}>
+                <SelectTrigger>
+                  <SelectValue placeholder="All Industries" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">All Industries</SelectItem>
+                  {industries.map(industry => (
+                    <SelectItem key={industry} value={industry}>{industry}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+
+            {/* Sort Options */}
+            <div>
+              <label className="block text-sm font-medium mb-2">Sort By</label>
+              <Select value={sortBy} onValueChange={setSortBy}>
+                <SelectTrigger>
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="rating">
+                    <div className="flex items-center gap-2">
+                      <ArrowUpDown className="w-4 h-4" />
+                      Rating
+                    </div>
+                  </SelectItem>
+                  <SelectItem value="reviews">Reviews</SelectItem>
+                  <SelectItem value="budget">Budget (Low to High)</SelectItem>
+                  <SelectItem value="portfolio">Portfolio Size</SelectItem>
+                  <SelectItem value="established">Established (Oldest)</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
           </div>
         </div>
 
         {/* Agency Cards */}
         <div className="space-y-8">
-          {mockAgencies.map((agency) => {
+          {filteredAndSortedAgencies.map((agency) => {
             const isExpanded = expandedAgencies.has(agency.id);
             const serviceProgress = (agency.totalServices / 100) * 100;
             const industryProgress = (agency.totalIndustries / 100) * 100;
@@ -237,6 +444,31 @@ export default function AgencyListing() {
                             )}
                           </button>
                         </p>
+
+                        {/* Services Section */}
+                        <div className="mb-4">
+                          <h4 className="text-sm font-medium text-gray-700 mb-3">Services Offered:</h4>
+                          <div className="space-y-1">
+                            {agency.services.slice(0, expandedServices.has(agency.id) ? agency.services.length : 6).map((service, index) => (
+                              <div key={index} className="flex items-center gap-2 text-sm text-gray-600">
+                                <div className="w-1.5 h-1.5 bg-primary rounded-full flex-shrink-0"></div>
+                                {service}
+                              </div>
+                            ))}
+                            {agency.services.length > 6 && (
+                              <button
+                                onClick={() => toggleServicesExpanded(agency.id)}
+                                className="text-primary hover:text-primary-light font-medium text-sm inline-flex items-center gap-1 mt-2"
+                              >
+                                {expandedServices.has(agency.id) ? (
+                                  <>Read Less <ChevronUp className="w-4 h-4" /></>
+                                ) : (
+                                  <>Read More ({agency.services.length - 6} more services) <ChevronDown className="w-4 h-4" /></>
+                                )}
+                              </button>
+                            )}
+                          </div>
+                        </div>
 
                         {/* Specialties */}
                         <div className="flex flex-wrap gap-2 mb-4">
